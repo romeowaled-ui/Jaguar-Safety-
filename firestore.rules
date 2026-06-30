@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Products Collection: Public read and write access for store operations (like inventory updates)
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+
+    // Orders Collection: Public write for placing orders, and read/write for managing orders
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Coupons Collection: Public read, and write for incrementing usage count on order completion
+    match /coupons/{couponId} {
+      allow read, write: if true;
+    }
+
+    // Shipping Zones Collection: Public read for checkout shipping selections, write for admin
+    match /shipping_zones/{zoneId} {
+      allow read, write: if true;
+    }
+
+    // Banners Collection: Public read for storefront display, write for admin
+    match /banners/{bannerId} {
+      allow read, write: if true;
+    }
+
+    // Settings Collection: Public read for store info, write for admin
+    match /settings/{settingsId} {
+      allow read, write: if true;
+    }
+
+    // Admin Password Collection: Readable and writeable for admin password verification
+    match /admin_password/{passwordId} {
+      allow read, write: if true;
+    }
+
+    // Product Display Order Collection: Public read for storefront sorting, write for admin
+    match /product_display_order/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Reels Collection: Public read for storefront video display, write for admin
+    match /reels/{reelId} {
+      allow read, write: if true;
+    }
+  }
+}

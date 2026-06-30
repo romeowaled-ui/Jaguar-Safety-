@@ -1,0 +1,8 @@
+{
+  "name": "Jaguar Safety",
+  "description": "A professional e-commerce storefront with a powerful admin control panel, dynamic product categories, discount coupons, custom banners, shipping zones, and automated Arabic WhatsApp order notification messaging.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
