@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ShoppingBag, Search, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product, StoreSettings } from '../types';
-import { translations } from '../i18n';
+import { translations, formatPrice } from '../i18n';
 
 interface ProductPageProps {
   product: Product;
@@ -105,14 +105,14 @@ export default function ProductPage({
 
         <div className="flex items-center gap-2">
           {/* Elegant Language Switcher Pill */}
-          <div className="flex bg-gray-100 p-1 rounded-full text-[10px] font-extrabold border border-gray-200/50 mr-1.5 ml-1.5">
+          <div className="flex bg-gray-100/80 p-1 rounded-full text-xs font-extrabold border border-gray-200 shadow-xs mr-1.5 ml-1.5">
             <button
               type="button"
               onClick={() => onSetLang('en')}
-              className={`px-2 py-0.5 rounded-full transition-all ${
+              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
                 lang === 'en'
                   ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-400 hover:text-black'
+                  : 'text-gray-500 hover:text-black hover:bg-white/40'
               }`}
             >
               EN
@@ -120,10 +120,10 @@ export default function ProductPage({
             <button
               type="button"
               onClick={() => onSetLang('ar')}
-              className={`px-2 py-0.5 rounded-full transition-all ${
+              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
                 lang === 'ar'
                   ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-400 hover:text-black'
+                  : 'text-gray-500 hover:text-black hover:bg-white/40'
               }`}
             >
               العربية
@@ -235,11 +235,11 @@ export default function ProductPage({
             <div className="flex items-baseline gap-3">
               {hasDiscount ? (
                 <>
-                  <span className="text-2xl font-black text-black">${Number(product.discount_price).toFixed(2)}</span>
-                  <span className="text-sm text-gray-400 line-through">${Number(product.price).toFixed(2)}</span>
+                  <span className="text-2xl font-black text-black">{formatPrice(product.discount_price, lang)}</span>
+                  <span className="text-sm text-gray-400 line-through">{formatPrice(product.price, lang)}</span>
                 </>
               ) : (
-                <span className="text-2xl font-black text-gray-900">${Number(product.price).toFixed(2)}</span>
+                <span className="text-2xl font-black text-gray-900">{formatPrice(product.price, lang)}</span>
               )}
             </div>
 
@@ -320,7 +320,7 @@ export default function ProductPage({
                         className="w-4 h-4 rounded text-black focus:ring-black border-gray-300"
                       />
                       <span className="text-xs font-bold text-gray-900">{ex.name}</span>
-                      <span className="text-xs text-gray-400 font-medium ml-auto">+${ex.price.toFixed(2)}</span>
+                      <span className="text-xs text-gray-400 font-medium ml-auto">+{formatPrice(ex.price, lang)}</span>
                     </label>
                   ))}
                 </div>

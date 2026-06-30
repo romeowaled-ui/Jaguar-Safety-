@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ShoppingBag, Menu, X, Package, Settings, Globe } from 'lucide-react';
 import { Product, Banner, StoreSettings } from '../types';
-import { translations } from '../i18n';
+import { translations, formatPrice } from '../i18n';
 import { db } from '../db';
 
 interface StorefrontProps {
@@ -125,24 +125,29 @@ export default function Storefront({
             setSearchQuery('');
             setShowMobileNav(false);
           }}
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-3 cursor-pointer select-none"
         >
-          {storeSettings.settings_admin_logo_url && (
-            <img
-              src={storeSettings.settings_admin_logo_url}
-              alt="Brand Logo"
-              className="h-9 object-contain"
-            />
-          )}
+          {storeSettings.settings_admin_logo_url ? (
+            <div className="flex items-center gap-2.5">
+              <img
+                src={storeSettings.settings_admin_logo_url}
+                alt={storeSettings.settings_store_name || "Logo"}
+                className="h-10 w-auto max-w-[120px] object-contain rounded-md"
+              />
+              {(storeSettings.settings_store_name || storeSettings.settings_store_name_image_url) && (
+                <div className="h-6 w-px bg-gray-200 block" />
+              )}
+            </div>
+          ) : null}
 
           {storeSettings.settings_store_name_image_url ? (
             <img
               src={storeSettings.settings_store_name_image_url}
               alt="Brand Logo Graphics"
-              className="h-10 object-contain"
+              className="h-8 w-auto object-contain"
             />
           ) : (
-            <h1 className="text-xl font-black tracking-tight uppercase font-display">
+            <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-gray-950 uppercase font-display leading-none">
               {storeSettings.settings_store_name || 'Pro Shop'}
             </h1>
           )}
@@ -170,14 +175,14 @@ export default function Storefront({
         {/* Quick controls widgets */}
         <div className="flex items-center gap-1.5">
           {/* Elegant Language Switcher Pill */}
-          <div className="flex bg-gray-100 p-1 rounded-full text-[10px] font-extrabold border border-gray-200/50 mr-1.5 ml-1.5">
+          <div className="flex bg-gray-100/80 p-1 rounded-full text-xs font-extrabold border border-gray-200 shadow-xs mr-1.5 ml-1.5">
             <button
               type="button"
               onClick={() => onSetLang('en')}
-              className={`px-2 py-0.5 rounded-full transition-all ${
+              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
                 lang === 'en'
                   ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-400 hover:text-black'
+                  : 'text-gray-500 hover:text-black hover:bg-white/40'
               }`}
             >
               EN
@@ -185,10 +190,10 @@ export default function Storefront({
             <button
               type="button"
               onClick={() => onSetLang('ar')}
-              className={`px-2 py-0.5 rounded-full transition-all ${
+              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
                 lang === 'ar'
                   ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-400 hover:text-black'
+                  : 'text-gray-500 hover:text-black hover:bg-white/40'
               }`}
             >
               العربية
@@ -365,11 +370,11 @@ export default function Storefront({
                       <div className="flex items-baseline gap-2 mt-2">
                         {hasDiscount ? (
                           <>
-                            <span className="text-sm font-extrabold text-black">${dPrice.toFixed(2)}</span>
-                            <span className="text-xs text-gray-400 line-through">${price.toFixed(2)}</span>
+                            <span className="text-sm font-extrabold text-black">{formatPrice(dPrice, lang)}</span>
+                            <span className="text-xs text-gray-400 line-through">{formatPrice(price, lang)}</span>
                           </>
                         ) : (
-                          <span className="text-sm font-bold text-gray-900">${price.toFixed(2)}</span>
+                          <span className="text-sm font-bold text-gray-900">{formatPrice(price, lang)}</span>
                         )}
                       </div>
                     </div>

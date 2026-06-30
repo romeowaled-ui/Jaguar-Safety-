@@ -218,3 +218,11 @@ export const translations = {
     placeOrder: "إتمام الطلب",
   }
 };
+
+export function formatPrice(amount: number | string, lang: 'en' | 'ar'): string {
+  const numeric = typeof amount === 'number' ? amount : Number(amount) || 0;
+  if (lang === 'ar') {
+    return `${numeric.toFixed(2)} ج.م`;
+  }
+  return `${numeric.toFixed(2)} EGP`;
+}

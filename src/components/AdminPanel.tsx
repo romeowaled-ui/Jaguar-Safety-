@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, Reel } from '../types';
 import { db } from '../db';
-import { translations } from '../i18n';
+import { translations, formatPrice } from '../i18n';
 
 interface AdminPanelProps {
   onBackToStore: () => void;
@@ -144,7 +144,7 @@ export default function AdminPanel({
 
     let itemsList = '';
     items.forEach(item => {
-      itemsList += `• ${item.name} ${item.color ? `(${item.color})` : ''} ${item.size ? `[${item.size}]` : ''} × ${item.qty} - $${(item.price * item.qty).toFixed(2)}\n`;
+      itemsList += `• ${item.name} ${item.color ? `(${item.color})` : ''} ${item.size ? `[${item.size}]` : ''} × ${item.qty} - ${formatPrice(item.price * item.qty, 'ar')}\n`;
     });
 
     let message = `السلام عليكم ورحمة الله وبركاته ${order.order_customer_name}! 👋\n\n`;
@@ -154,13 +154,13 @@ export default function AdminPanel({
     message += `📋 المنتجات:\n${itemsList}`;
 
     if (order.order_coupon) {
-      message += `\n💰 كود الخصم (${order.order_coupon}): -$${Number(order.order_discount || 0).toFixed(2)}\n`;
+      message += `\n💰 كود الخصم (${order.order_coupon}): -${formatPrice(Number(order.order_discount || 0), 'ar')}\n`;
     }
     if (order.order_shipping_fee) {
-      message += `📍 الشحن (${order.order_shipping_zone}): $${Number(order.order_shipping_fee).toFixed(2)}\n`;
+      message += `📍 الشحن (${order.order_shipping_zone}): ${formatPrice(Number(order.order_shipping_fee), 'ar')}\n`;
     }
 
-    message += `\n💵 المجموع الكلي: $${Number(order.order_total).toFixed(2)}\n\n`;
+    message += `\n💵 المجموع الكلي: ${formatPrice(Number(order.order_total), 'ar')}\n\n`;
     message += `📍 عنوان التوصيل:\n${order.order_address}\n\n`;
     message += `✅ جاري معالجة طلبك وسيتم إرسال تحديثات قريباً!\n`;
     message += `إذا كان لديك أي استفسارات، لا تتردد في التواصل معنا.\n\n`;
@@ -457,11 +457,11 @@ export default function AdminPanel({
                                 <div className="flex items-center gap-2 mt-1">
                                   {hasDiscount ? (
                                     <>
-                                      <span className="text-xs font-extrabold text-black">${dPrice.toFixed(2)}</span>
-                                      <span className="text-xs text-gray-400 line-through">${price.toFixed(2)}</span>
+                                      <span className="text-xs font-extrabold text-black">{formatPrice(dPrice, lang)}</span>
+                                      <span className="text-xs text-gray-400 line-through">{formatPrice(price, lang)}</span>
                                     </>
                                   ) : (
-                                    <span className="text-xs font-bold text-gray-800">${price.toFixed(2)}</span>
+                                    <span className="text-xs font-bold text-gray-800">{formatPrice(price, lang)}</span>
                                   )}
                                   {p.category && (
                                     <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-medium">
@@ -630,7 +630,7 @@ export default function AdminPanel({
                           </div>
                           <div className="text-right">
                             <span className="font-semibold text-gray-900">
-                              ${(item.price * item.qty).toFixed(2)}
+                              {formatPrice(item.price * item.qty, lang)}
                             </span>
                             <span className="text-xs text-gray-400 block mt-0.5">
                               Qty: {item.qty}
@@ -646,18 +646,18 @@ export default function AdminPanel({
                     {orderDetail.order_coupon && (
                       <div className="flex justify-between text-gray-500">
                         <span>Applied Coupon ({orderDetail.order_coupon})</span>
-                        <span className="text-emerald-500">-${Number(orderDetail.order_discount || 0).toFixed(2)}</span>
+                        <span className="text-emerald-500">-{formatPrice(Number(orderDetail.order_discount || 0), lang)}</span>
                       </div>
                     )}
                     {orderDetail.order_shipping_fee && (
                       <div className="flex justify-between text-gray-500">
                         <span>Shipping ({orderDetail.order_shipping_zone})</span>
-                        <span>+${Number(orderDetail.order_shipping_fee).toFixed(2)}</span>
+                        <span>+{formatPrice(Number(orderDetail.order_shipping_fee), lang)}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-bold text-base text-gray-900 pt-2 border-t border-gray-100">
                       <span>Total Amount Paid</span>
-                      <span>${Number(orderDetail.order_total).toFixed(2)}</span>
+                      <span>{formatPrice(Number(orderDetail.order_total), lang)}</span>
                     </div>
                   </div>
                 </div>
@@ -713,7 +713,7 @@ export default function AdminPanel({
 
                               <div className="flex items-center gap-4 flex-shrink-0">
                                 <span className="font-extrabold text-sm text-gray-900">
-                                  ${Number(order.order_total).toFixed(2)}
+                                  {formatPrice(Number(order.order_total), lang)}
                                 </span>
                                 <button
                                   onClick={(e) => {
@@ -864,7 +864,7 @@ export default function AdminPanel({
                           <div>
                             <h4 className="font-bold text-sm text-gray-900">{zone.shipping_zone_name}</h4>
                             <p className="text-xs text-gray-500 mt-1">
-                              Fixed Shipping Cost: <span className="font-extrabold text-gray-900">${Number(zone.shipping_zone_price).toFixed(2)}</span>
+                              Fixed Shipping Cost: <span className="font-extrabold text-gray-900">{formatPrice(Number(zone.shipping_zone_price), lang)}</span>
                             </p>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, ArrowLeft, ShoppingBag, MapPin, Ticket, AlertCircle, CheckCircle, ChevronRight } from 'lucide-react';
 import { CartItem, Product, Coupon, ShippingZone } from '../types';
 import { db } from '../db';
-import { translations } from '../i18n';
+import { translations, formatPrice } from '../i18n';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -378,7 +378,7 @@ export default function CartDrawer({
                               </div>
 
                               <span className="font-extrabold text-xs text-gray-900">
-                                ${lineTotal.toFixed(2)}
+                                {formatPrice(lineTotal, lang)}
                               </span>
                             </div>
                           </div>
@@ -494,7 +494,7 @@ export default function CartDrawer({
                       >
                         {shippingZones.map(zone => (
                           <option key={zone.__backendId} value={zone.shipping_zone_name}>
-                            {zone.shipping_zone_name} - ${zone.shipping_zone_price.toFixed(2)}
+                            {zone.shipping_zone_name} - {formatPrice(zone.shipping_zone_price, lang)}
                           </option>
                         ))}
                       </select>
@@ -551,23 +551,23 @@ export default function CartDrawer({
                 <div className="space-y-2 mb-4 text-xs font-medium text-gray-600">
                   <div className="flex justify-between">
                     <span>{t.subtotal}</span>
-                    <span className="text-gray-900 font-bold">${subtotal.toFixed(2)}</span>
+                    <span className="text-gray-900 font-bold">{formatPrice(subtotal, lang)}</span>
                   </div>
                   {appliedCoupon && (
                     <div className="flex justify-between text-emerald-600">
                       <span>{t.discount} ({appliedCoupon.coupon_discount}%)</span>
-                      <span>-${discountAmount.toFixed(2)}</span>
+                      <span>-{formatPrice(discountAmount, lang)}</span>
                     </div>
                   )}
                   {checkoutMode && shippingFee > 0 && (
                     <div className="flex justify-between">
                       <span>{t.shippingCharges}</span>
-                      <span className="text-gray-900 font-bold">+${shippingFee.toFixed(2)}</span>
+                      <span className="text-gray-900 font-bold">+{formatPrice(shippingFee, lang)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-base font-extrabold text-gray-900 pt-2 border-t border-gray-200">
                     <span>{t.grandTotal}</span>
-                    <span>${grandTotal.toFixed(2)}</span>
+                    <span>{formatPrice(grandTotal, lang)}</span>
                   </div>
                 </div>
 
