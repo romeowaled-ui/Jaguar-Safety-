@@ -70,8 +70,18 @@ export default function Storefront({
     return [`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='%23f1f5f9'/><text x='200' y='210' text-anchor='middle' font-family='sans-serif' font-size='24' fill='%2394a3b8'>${encodeURIComponent(p.name[0])}</text></svg>`];
   };
 
-  // Filters logic
-  let filteredProducts = products.filter(p => p.status === 'active');
+  // Sort and filter logic
+  const displayOrder = db.getProductDisplayOrder();
+  const sortedProducts = [...products].sort((a, b) => {
+    const idxA = displayOrder.indexOf(a.__backendId);
+    const idxB = displayOrder.indexOf(b.__backendId);
+    if (idxA === -1 && idxB === -1) return 0;
+    if (idxA === -1) return 1;
+    if (idxB === -1) return -1;
+    return idxA - idxB;
+  });
+
+  let filteredProducts = sortedProducts.filter(p => p.status === 'active');
 
   // Search filter
   if (searchQuery.trim()) {

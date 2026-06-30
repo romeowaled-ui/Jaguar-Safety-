@@ -33,7 +33,15 @@ export default function CartDrawer({
   onSetLang
 }: CartDrawerProps) {
   const [checkoutMode, setCheckoutMode] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
   const t = translations[lang];
+
+  const handleClose = () => {
+    onClose();
+    setTimeout(() => {
+      setOrderPlaced(false);
+    }, 300);
+  };
 
   // Form fields state
   const [name, setName] = useState('');
@@ -196,6 +204,7 @@ export default function CartDrawer({
 
     // Trigger notification callback
     onOrderCompleted();
+    setOrderPlaced(true);
   };
 
   const getProductImages = (p: Product) => {
@@ -228,7 +237,7 @@ export default function CartDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute inset-0 bg-black/40 backdrop-blur-xs"
           />
 
@@ -243,7 +252,9 @@ export default function CartDrawer({
             {/* Header */}
             <div className="p-6 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
-                {checkoutMode ? (
+                {orderPlaced ? (
+                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                ) : checkoutMode ? (
                   <button
                     onClick={() => setCheckoutMode(false)}
                     className="p-1 hover:bg-gray-50 rounded-full transition text-gray-500"
@@ -254,17 +265,49 @@ export default function CartDrawer({
                   <ShoppingBag className="w-5 h-5 text-gray-400" />
                 )}
                 <h3 className="font-bold text-lg text-gray-900">
-                  {checkoutMode ? t.checkoutDetails : `${t.yourCart} (${cart.length})`}
+                  {orderPlaced ? (lang === 'ar' ? 'تم الطلب بنجاح' : 'Order Placed') : checkoutMode ? t.checkoutDetails : `${t.yourCart} (${cart.length})`}
                 </h3>
               </div>
-              <button onClick={onClose} className="p-1.5 hover:bg-gray-50 rounded-lg transition text-gray-400">
+              <button onClick={handleClose} className="p-1.5 hover:bg-gray-50 rounded-lg transition text-gray-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Middle Frame Scroll */}
             <div className="flex-1 overflow-auto p-6 space-y-6">
-              {!checkoutMode ? (
+              {orderPlaced ? (
+                /* SUCCESS SCREEN */
+                <div className="text-center py-12 space-y-6 my-auto flex flex-col justify-center items-center h-full">
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', damping: 15 }}
+                    className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-500 shadow-sm border border-emerald-100"
+                  >
+                    <CheckCircle className="w-10 h-10" />
+                  </motion.div>
+
+                  <div className="space-y-2">
+                    <h2 className="font-extrabold text-2xl text-gray-900 tracking-tight">
+                      {lang === 'ar' ? 'تم تقديم طلبك بنجاح.' : 'Your order has been placed successfully.'}
+                    </h2>
+                    <p className="text-sm text-gray-500 font-medium px-4">
+                      {lang === 'ar' 
+                        ? 'تم حفظ طلبك بشكل آمن ومزامنة التفاصيل مع لوحة تحكم المتجر.' 
+                        : 'Your order has been recorded securely and is immediately available in the Store Dashboard.'}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 w-full px-6">
+                    <button
+                      onClick={handleClose}
+                      className="w-full bg-black text-white hover:opacity-90 py-3 px-8 rounded-full font-bold text-sm transition shadow-md"
+                    >
+                      {lang === 'ar' ? 'متابعة التسوق' : 'Continue Shopping'}
+                    </button>
+                  </div>
+                </div>
+              ) : !checkoutMode ? (
                 /* SHOPPING CART OVERVIEW */
                 cart.length === 0 ? (
                   <div className="text-center py-16 space-y-3">
@@ -503,53 +546,55 @@ export default function CartDrawer({
             </div>
 
             {/* Bottom calculation billing card and CTA triggers */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-              <div className="space-y-2 mb-4 text-xs font-medium text-gray-600">
-                <div className="flex justify-between">
-                  <span>{t.subtotal}</span>
-                  <span className="text-gray-900 font-bold">${subtotal.toFixed(2)}</span>
-                </div>
-                {appliedCoupon && (
-                  <div className="flex justify-between text-emerald-600">
-                    <span>{t.discount} ({appliedCoupon.coupon_discount}%)</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-                {checkoutMode && shippingFee > 0 && (
+            {!orderPlaced && (
+              <div className="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+                <div className="space-y-2 mb-4 text-xs font-medium text-gray-600">
                   <div className="flex justify-between">
-                    <span>{t.shippingCharges}</span>
-                    <span className="text-gray-900 font-bold">+${shippingFee.toFixed(2)}</span>
+                    <span>{t.subtotal}</span>
+                    <span className="text-gray-900 font-bold">${subtotal.toFixed(2)}</span>
                   </div>
-                )}
-                <div className="flex justify-between text-base font-extrabold text-gray-900 pt-2 border-t border-gray-200">
-                  <span>{t.grandTotal}</span>
-                  <span>${grandTotal.toFixed(2)}</span>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>{t.discount} ({appliedCoupon.coupon_discount}%)</span>
+                      <span>-${discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {checkoutMode && shippingFee > 0 && (
+                    <div className="flex justify-between">
+                      <span>{t.shippingCharges}</span>
+                      <span className="text-gray-900 font-bold">+${shippingFee.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-base font-extrabold text-gray-900 pt-2 border-t border-gray-200">
+                    <span>{t.grandTotal}</span>
+                    <span>${grandTotal.toFixed(2)}</span>
+                  </div>
                 </div>
-              </div>
 
-              {!checkoutMode ? (
-                <button
-                  disabled={cart.length === 0}
-                  onClick={() => setCheckoutMode(true)}
-                  className={`w-full py-3.5 rounded-full font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-sm ${
-                    cart.length === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-black text-white hover:opacity-90'
-                  }`}
-                >
-                  {t.proceedToCheckout}
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  form="drawer-checkout-form"
-                  className="w-full bg-black hover:opacity-90 text-white py-3.5 rounded-full font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  {t.placeOrder}
-                </button>
-              )}
-            </div>
+                {!checkoutMode ? (
+                  <button
+                    disabled={cart.length === 0}
+                    onClick={() => setCheckoutMode(true)}
+                    className={`w-full py-3.5 rounded-full font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-sm ${
+                      cart.length === 0
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-black text-white hover:opacity-90'
+                    }`}
+                  >
+                    {t.proceedToCheckout}
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    form="drawer-checkout-form"
+                    className="w-full bg-black hover:opacity-90 text-white py-3.5 rounded-full font-bold text-sm transition flex items-center justify-center gap-1.5 shadow-md"
+                  >
+                    {t.placeOrder}
+                  </button>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       )}

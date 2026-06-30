@@ -365,7 +365,7 @@ export const db = {
 
   // PRODUCTS
   getProducts(): Product[] {
-    return cachedProducts;
+    return [...cachedProducts];
   },
   saveProduct(p: Partial<Product> & { name: string; price: number }): Product {
     let savedProduct: Product;
@@ -375,9 +375,9 @@ export const db = {
       const index = cachedProducts.findIndex(item => item.__backendId === p.__backendId);
       savedProduct = { ...(index !== -1 ? cachedProducts[index] : {}), ...p } as Product;
       if (index !== -1) {
-        cachedProducts[index] = savedProduct;
+        cachedProducts = cachedProducts.map((item, idx) => idx === index ? savedProduct : item);
       } else {
-        cachedProducts.push(savedProduct);
+        cachedProducts = [...cachedProducts, savedProduct];
       }
     } else {
       // Create
@@ -394,10 +394,10 @@ export const db = {
         status: p.status || 'active',
         created_at: new Date().toISOString()
       } as Product;
-      cachedProducts.push(savedProduct);
+      cachedProducts = [...cachedProducts, savedProduct];
 
       // Append to display order
-      cachedDisplayOrder.push(savedProduct.__backendId);
+      cachedDisplayOrder = [...cachedDisplayOrder, savedProduct.__backendId];
       setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: cachedDisplayOrder });
     }
 
@@ -422,7 +422,7 @@ export const db = {
 
   // ORDERS
   getOrders(): Order[] {
-    return cachedOrders;
+    return [...cachedOrders];
   },
   saveOrder(o: Partial<Order> & { order_customer_name: string; order_total: number }): Order {
     let savedOrder: Order;
@@ -432,9 +432,9 @@ export const db = {
       const index = cachedOrders.findIndex(item => item.__backendId === o.__backendId);
       savedOrder = { ...(index !== -1 ? cachedOrders[index] : {}), ...o } as Order;
       if (index !== -1) {
-        cachedOrders[index] = savedOrder;
+        cachedOrders = cachedOrders.map((item, idx) => idx === index ? savedOrder : item);
       } else {
-        cachedOrders.push(savedOrder);
+        cachedOrders = [...cachedOrders, savedOrder];
       }
     } else {
       // Create
@@ -446,7 +446,7 @@ export const db = {
         order_date: new Date().toISOString(),
         order_items: o.order_items || '[]'
       } as Order;
-      cachedOrders.push(savedOrder);
+      cachedOrders = [...cachedOrders, savedOrder];
     }
 
     // Write to Firestore and trigger optimistic update locally
@@ -468,8 +468,8 @@ export const db = {
     const index = cachedOrders.findIndex(item => item.__backendId === backendId);
     if (index === -1) return null;
 
-    cachedOrders[index].order_status = status;
-    const updated = cachedOrders[index];
+    const updated = { ...cachedOrders[index], order_status: status };
+    cachedOrders = cachedOrders.map((item, idx) => idx === index ? updated : item);
 
     setDoc(doc(firestoreDb, 'orders', backendId), updated);
     notifySubscribers();
@@ -479,7 +479,7 @@ export const db = {
 
   // COUPONS
   getCoupons(): Coupon[] {
-    return cachedCoupons;
+    return [...cachedCoupons];
   },
   saveCoupon(c: Partial<Coupon> & { coupon_code: string; coupon_discount: number }): Coupon {
     let savedCoupon: Coupon;
@@ -488,9 +488,9 @@ export const db = {
       const index = cachedCoupons.findIndex(item => item.__backendId === c.__backendId);
       savedCoupon = { ...(index !== -1 ? cachedCoupons[index] : {}), ...c } as Coupon;
       if (index !== -1) {
-        cachedCoupons[index] = savedCoupon;
+        cachedCoupons = cachedCoupons.map((item, idx) => idx === index ? savedCoupon : item);
       } else {
-        cachedCoupons.push(savedCoupon);
+        cachedCoupons = [...cachedCoupons, savedCoupon];
       }
     } else {
       savedCoupon = {
@@ -499,7 +499,7 @@ export const db = {
         type: 'coupon',
         coupon_usage_count: 0
       } as Coupon;
-      cachedCoupons.push(savedCoupon);
+      cachedCoupons = [...cachedCoupons, savedCoupon];
     }
 
     setDoc(doc(firestoreDb, 'coupons', savedCoupon.__backendId), savedCoupon);
@@ -519,7 +519,7 @@ export const db = {
 
   // SHIPPING ZONES
   getShippingZones(): ShippingZone[] {
-    return cachedShippingZones;
+    return [...cachedShippingZones];
   },
   saveShippingZone(z: Partial<ShippingZone> & { shipping_zone_name: string; shipping_zone_price: number }): ShippingZone {
     let savedZone: ShippingZone;
@@ -528,9 +528,9 @@ export const db = {
       const index = cachedShippingZones.findIndex(item => item.__backendId === z.__backendId);
       savedZone = { ...(index !== -1 ? cachedShippingZones[index] : {}), ...z } as ShippingZone;
       if (index !== -1) {
-        cachedShippingZones[index] = savedZone;
+        cachedShippingZones = cachedShippingZones.map((item, idx) => idx === index ? savedZone : item);
       } else {
-        cachedShippingZones.push(savedZone);
+        cachedShippingZones = [...cachedShippingZones, savedZone];
       }
     } else {
       savedZone = {
@@ -538,7 +538,7 @@ export const db = {
         __backendId: 'ship_' + generateId(),
         type: 'shipping_zone'
       } as ShippingZone;
-      cachedShippingZones.push(savedZone);
+      cachedShippingZones = [...cachedShippingZones, savedZone];
     }
 
     setDoc(doc(firestoreDb, 'shipping_zones', savedZone.__backendId), savedZone);
@@ -572,7 +572,7 @@ export const db = {
 
   // BANNERS
   getBanners(): Banner[] {
-    return cachedBanners;
+    return [...cachedBanners];
   },
   saveBanner(b: Partial<Banner> & { banner_position: Banner['banner_position']; banner_image_url: string }): Banner {
     let savedBanner: Banner;
@@ -581,9 +581,9 @@ export const db = {
       const index = cachedBanners.findIndex(item => item.__backendId === b.__backendId);
       savedBanner = { ...(index !== -1 ? cachedBanners[index] : {}), ...b } as Banner;
       if (index !== -1) {
-        cachedBanners[index] = savedBanner;
+        cachedBanners = cachedBanners.map((item, idx) => idx === index ? savedBanner : item);
       } else {
-        cachedBanners.push(savedBanner);
+        cachedBanners = [...cachedBanners, savedBanner];
       }
     } else {
       savedBanner = {
@@ -595,7 +595,7 @@ export const db = {
         banner_width: b.banner_width || 0,
         banner_height: b.banner_height || 0
       } as Banner;
-      cachedBanners.push(savedBanner);
+      cachedBanners = [...cachedBanners, savedBanner];
     }
 
     setDoc(doc(firestoreDb, 'banners', savedBanner.__backendId), savedBanner);
@@ -625,17 +625,17 @@ export const db = {
 
   // PRODUCT DISPLAY ORDER
   getProductDisplayOrder(): string[] {
-    return cachedDisplayOrder;
+    return [...cachedDisplayOrder];
   },
   saveProductDisplayOrder(order: string[]): void {
-    cachedDisplayOrder = order;
+    cachedDisplayOrder = [...order];
     setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order });
     notifySubscribers();
   },
 
   // REELS
   getReels(): Reel[] {
-    return cachedReels;
+    return [...cachedReels];
   },
   saveReel(r: Partial<Reel> & { reel_url: string }): Reel {
     let savedReel: Reel;
@@ -644,9 +644,9 @@ export const db = {
       const index = cachedReels.findIndex(item => item.__backendId === r.__backendId);
       savedReel = { ...(index !== -1 ? cachedReels[index] : {}), ...r } as Reel;
       if (index !== -1) {
-        cachedReels[index] = savedReel;
+        cachedReels = cachedReels.map((item, idx) => idx === index ? savedReel : item);
       } else {
-        cachedReels.push(savedReel);
+        cachedReels = [...cachedReels, savedReel];
       }
     } else {
       savedReel = {
@@ -654,7 +654,7 @@ export const db = {
         __backendId: 'reel_' + generateId(),
         type: 'reel'
       } as Reel;
-      cachedReels.push(savedReel);
+      cachedReels = [...cachedReels, savedReel];
     }
 
     setDoc(doc(firestoreDb, 'reels', savedReel.__backendId), savedReel);

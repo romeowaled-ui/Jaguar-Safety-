@@ -221,8 +221,6 @@ export default function App() {
         shippingZones={shippingZones}
         onOrderCompleted={() => {
           setCart([]);
-          setShowCart(false);
-          triggerToast(t.orderPlacedSuccess);
           refreshAllData();
         }}
         lang={lang}
