@@ -174,32 +174,6 @@ export default function Storefront({
 
         {/* Quick controls widgets */}
         <div className="flex items-center gap-1.5">
-          {/* Elegant Language Switcher Pill */}
-          <div className="flex bg-gray-100/80 p-1 rounded-full text-xs font-extrabold border border-gray-200 shadow-xs mr-1.5 ml-1.5">
-            <button
-              type="button"
-              onClick={() => onSetLang('en')}
-              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
-                lang === 'en'
-                  ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-500 hover:text-black hover:bg-white/40'
-              }`}
-            >
-              EN
-            </button>
-            <button
-              type="button"
-              onClick={() => onSetLang('ar')}
-              className={`px-3 py-1.5 rounded-full transition-all duration-200 font-bold cursor-pointer ${
-                lang === 'ar'
-                  ? 'bg-white text-black shadow-xs font-black'
-                  : 'text-gray-500 hover:text-black hover:bg-white/40'
-              }`}
-            >
-              العربية
-            </button>
-          </div>
-
           <button
             onClick={() => setShowSearchInput(!showSearchInput)}
             className="p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition text-gray-700"
@@ -217,6 +191,7 @@ export default function Storefront({
               </span>
             )}
           </button>
+
           <button
             onClick={() => setShowMobileNav(!showMobileNav)}
             className="p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition text-gray-700"
@@ -517,6 +492,34 @@ export default function Storefront({
           </div>
 
           <div className="w-10 h-0.5 bg-black rounded-full mx-auto" />
+
+          {/* Footer Language Switcher */}
+          <div className="flex justify-center py-2">
+            <div className="inline-flex bg-white p-1 rounded-full text-xs font-extrabold border border-gray-200/80 shadow-xs">
+              <button
+                type="button"
+                onClick={() => onSetLang('en')}
+                className={`px-4 py-2 rounded-full transition-all duration-200 font-bold cursor-pointer ${
+                  lang === 'en'
+                    ? 'bg-black text-white shadow-md'
+                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                }`}
+              >
+                EN (English)
+              </button>
+              <button
+                type="button"
+                onClick={() => onSetLang('ar')}
+                className={`px-4 py-2 rounded-full transition-all duration-200 font-bold cursor-pointer ${
+                  lang === 'ar'
+                    ? 'bg-black text-white shadow-md'
+                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                }`}
+              >
+                العربية (Arabic)
+              </button>
+            </div>
+          </div>
 
           <div className="space-y-1">
             <p className="font-extrabold text-sm text-gray-900">
