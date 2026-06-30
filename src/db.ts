@@ -157,7 +157,29 @@ onSnapshot(doc(firestoreDb, 'product_display_order', 'order_doc'), (docSnap) => 
 }, (err) => console.error('Display order listener error:', err));
 
 export function initDB() {
-  // Backwards compatible dummy call
+  // Delete legacy seed data if present to ensure a completely clean start
+  const legacyIds = {
+    products: ['prod_1', 'prod_2', 'prod_3', 'prod_4'],
+    coupons: ['coup_1', 'coup_2'],
+    shipping_zones: ['ship_1', 'ship_2', 'ship_3'],
+    banners: ['ban_1', 'ban_2'],
+    reels: ['reel_1', 'reel_2']
+  };
+
+  Object.entries(legacyIds).forEach(([collectionName, ids]) => {
+    ids.forEach(id => {
+      deleteDoc(doc(firestoreDb, collectionName, id)).catch(err => {
+        console.error(`Error removing legacy seed ${id} from ${collectionName}:`, err);
+      });
+    });
+  });
+}
+
+// Automatically clear legacy seeds on load
+try {
+  initDB();
+} catch (e) {
+  console.error('Error running initDB cleanup:', e);
 }
 
 export const db = {
@@ -476,5 +498,30 @@ export const db = {
     notifySubscribers();
 
     return cachedReels.length < lengthBefore;
+  },
+  purgeStoreContent(): void {
+    // Delete all products
+    cachedProducts.forEach(p => {
+      deleteDoc(doc(firestoreDb, 'products', p.__backendId));
+    });
+    cachedProducts = [];
+
+    // Delete all banners
+    cachedBanners.forEach(b => {
+      deleteDoc(doc(firestoreDb, 'banners', b.__backendId));
+    });
+    cachedBanners = [];
+
+    // Delete all reels
+    cachedReels.forEach(r => {
+      deleteDoc(doc(firestoreDb, 'reels', r.__backendId));
+    });
+    cachedReels = [];
+
+    // Clear display order
+    cachedDisplayOrder = [];
+    setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: [] });
+
+    notifySubscribers();
   }
 };

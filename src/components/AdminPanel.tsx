@@ -52,7 +52,7 @@ export default function AdminPanel({
   const [passwordChange, setPasswordChange] = useState({ current: '', new: '', confirm: '' });
 
   // Delete Confirmation State
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'product' | 'order' | 'coupon' | 'shipping_zone' | 'banner' | 'reel' } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'product' | 'order' | 'coupon' | 'shipping_zone' | 'banner' | 'reel' | 'purge' } | null>(null);
 
   // Toast State
   const [toast, setToast] = useState<string | null>(null);
@@ -92,6 +92,14 @@ export default function AdminPanel({
     if (!deleteConfirm) return;
     const { id, type } = deleteConfirm;
     let isOk = false;
+
+    if (type === 'purge') {
+      db.purgeStoreContent();
+      triggerToast('All products, banners, and reels deleted successfully!');
+      onRefreshData();
+      setDeleteConfirm(null);
+      return;
+    }
 
     if (type === 'product') {
       isOk = db.deleteProduct(id);
@@ -1312,6 +1320,27 @@ export default function AdminPanel({
                   </button>
                 </form>
               </div>
+
+              {/* Purge / Reset Store Section */}
+              <div className="bg-red-50/40 p-5 rounded-2xl border border-red-100 shadow-xs">
+                <h3 className="font-bold text-base mb-2 text-red-900 flex items-center gap-2">
+                  <span className="w-1.5 h-4 bg-red-600 rounded-full" />
+                  Purge & Reset Store Content
+                </h3>
+                <p className="text-xs text-red-700/80 mb-4 leading-relaxed">
+                  This action will instantly delete all products, banners, and reels currently in your store database to give you a clean, empty canvas. This is permanent and cannot be undone.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteConfirm({ id: 'all', type: 'purge' });
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete All Products, Banners & Reels
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1329,10 +1358,12 @@ export default function AdminPanel({
             >
               <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-red-600">
                 <AlertCircle className="w-5 h-5" />
-                Confirm Deletion
+                {deleteConfirm.type === 'purge' ? 'Confirm Purging Store' : 'Confirm Deletion'}
               </h3>
               <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                Are you sure you want to delete this {deleteConfirm.type.replace('_', ' ')}? This action is permanent and cannot be undone.
+                {deleteConfirm.type === 'purge'
+                  ? 'Are you sure you want to delete all products, banners, and reels from the database? This is permanent and cannot be undone.'
+                  : `Are you sure you want to delete this ${deleteConfirm.type.replace('_', ' ')}? This action is permanent and cannot be undone.`}
               </p>
               <div className="flex gap-3">
                 <button
@@ -1345,7 +1376,7 @@ export default function AdminPanel({
                   onClick={handleDelete}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-sm transition shadow-sm"
                 >
-                  Delete
+                  {deleteConfirm.type === 'purge' ? 'Purge All' : 'Delete'}
                 </button>
               </div>
             </motion.div>
