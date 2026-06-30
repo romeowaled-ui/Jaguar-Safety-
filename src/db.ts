@@ -26,168 +26,15 @@ const SEED_IMAGES = {
   middleBanner: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80'
 };
 
-const SEED_PRODUCTS: Product[] = [
-  {
-    __backendId: 'prod_1',
-    type: 'product',
-    name: 'Aura Chronograph Quartz Watch',
-    description: 'Precision timekeeping paired with architectural minimalist aesthetic. Crafted from surgical-grade stainless steel with genuine leather straps.',
-    price: 199.00,
-    discount_price: 149.00,
-    category: 'Accessories',
-    colors: JSON.stringify(['#1a1a1a', '#8b5a2b']), // Black and Brown
-    sizes: JSON.stringify(['40mm', '44mm']),
-    inventory: JSON.stringify({
-      '#1a1a1a__40mm': 15,
-      '#1a1a1a__44mm': 10,
-      '#8b5a2b__40mm': 8,
-      '#8b5a2b__44mm': 12
-    }),
-    extras: JSON.stringify([
-      { name: 'Extended 3-Year Warranty', price: 19.99 },
-      { name: 'Premium Velvet Gift Wrap', price: 5.99 }
-    ]),
-    images: JSON.stringify([SEED_IMAGES.watchBlack, SEED_IMAGES.watchBrown]),
-    color_image_map: JSON.stringify({
-      '#1a1a1a': '0',
-      '#8b5a2b': '1'
-    }),
-    status: 'active',
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    __backendId: 'prod_2',
-    type: 'product',
-    name: 'AcousticMax Wireless Headphones',
-    description: 'Immersive sound with industry-leading hybrid active noise cancellation (ANC). Enjoy ultra-comfortable memory foam earcups and up to 40 hours of continuous playback.',
-    price: 299.00,
-    discount_price: 249.00,
-    category: 'Electronics',
-    colors: JSON.stringify(['#ffffff', '#111827']), // Silver/White and Matte Black
-    sizes: JSON.stringify(['Standard']),
-    inventory: JSON.stringify({
-      '#ffffff__Standard': 25,
-      '#111827__Standard': 30
-    }),
-    extras: JSON.stringify([
-      { name: 'Hard Shell Carrying Case', price: 14.99 },
-      { name: 'Audio Cable Adapter Pack', price: 4.99 }
-    ]),
-    images: JSON.stringify([SEED_IMAGES.headphonesSilver, SEED_IMAGES.headphonesBlack]),
-    color_image_map: JSON.stringify({
-      '#ffffff': '0',
-      '#111827': '1'
-    }),
-    status: 'active',
-    created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    __backendId: 'prod_3',
-    type: 'product',
-    name: 'Nomad Tech Waterproof Backpack',
-    description: 'Designed for the modern commuter and traveler. Features a fully padded 16-inch laptop pocket, hidden anti-theft zipper compartments, and military-grade waterproof fabric.',
-    price: 89.00,
-    discount_price: 0,
-    category: 'Travel Bags',
-    colors: JSON.stringify(['#4b5563', '#1b4d3e']), // Grey and Olive
-    sizes: JSON.stringify(['18 Liters', '24 Liters']),
-    inventory: JSON.stringify({
-      '#4b5563__18 Liters': 20,
-      '#4b5563__24 Liters': 15,
-      '#1b4d3e__18 Liters': 12,
-      '#1b4d3e__24 Liters': 18
-    }),
-    extras: JSON.stringify([
-      { name: 'Integrated USB Powerbank 10k', price: 24.99 },
-      { name: 'Heavy-Duty Rain Cover', price: 6.99 }
-    ]),
-    images: JSON.stringify([SEED_IMAGES.backpackGrey, SEED_IMAGES.backpackOlive]),
-    color_image_map: JSON.stringify({
-      '#4b5563': '0',
-      '#1b4d3e': '1'
-    }),
-    status: 'active',
-    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    __backendId: 'prod_4',
-    type: 'product',
-    name: 'Stratus LiteRun Performance Sneakers',
-    description: 'Engineered with responsive honeycomb air-cushioning. Lightweight breathable knit mesh upper ensures comfort during intense running sessions.',
-    price: 120.00,
-    discount_price: 95.00,
-    category: 'Footwear',
-    colors: JSON.stringify(['#ef4444']), // Red
-    sizes: JSON.stringify(['41', '42', '43', '44']),
-    inventory: JSON.stringify({
-      '#ef4444__41': 10,
-      '#ef4444__42': 14,
-      '#ef4444__43': 8,
-      '#ef4444__44': 5
-    }),
-    extras: JSON.stringify([
-      { name: 'Odour Protection Cushioned Insoles', price: 7.99 },
-      { name: 'Premium Sport Reflective Laces', price: 3.99 }
-    ]),
-    images: JSON.stringify([SEED_IMAGES.sneakerWhite]),
-    color_image_map: JSON.stringify({
-      '#ef4444': '0'
-    }),
-    status: 'active',
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-  }
-];
+const SEED_PRODUCTS: Product[] = [];
 
-const SEED_COUPONS: Coupon[] = [
-  { __backendId: 'coup_1', type: 'coupon', coupon_code: 'SUMMER20', coupon_discount: 20, coupon_usage_limit: 100, coupon_usage_count: 14 },
-  { __backendId: 'coup_2', type: 'coupon', coupon_code: 'WELCOME10', coupon_discount: 10, coupon_usage_limit: 50, coupon_usage_count: 2 }
-];
+const SEED_COUPONS: Coupon[] = [];
 
-const SEED_SHIPPING_ZONES: ShippingZone[] = [
-  { __backendId: 'ship_1', type: 'shipping_zone', shipping_zone_name: 'Standard Courier Shipping', shipping_zone_price: 4.99 },
-  { __backendId: 'ship_2', type: 'shipping_zone', shipping_zone_name: 'VIP Express Next-Day Delivery', shipping_zone_price: 19.99 },
-  { __backendId: 'ship_3', type: 'shipping_zone', shipping_zone_name: 'Worldwide Registered Cargo', shipping_zone_price: 29.99 }
-];
+const SEED_SHIPPING_ZONES: ShippingZone[] = [];
 
-const SEED_BANNERS: Banner[] = [
-  {
-    __backendId: 'ban_1',
-    type: 'banner',
-    banner_position: 'top',
-    banner_image_url: SEED_IMAGES.topBanner,
-    banner_enabled: true,
-    banner_size: 'rectangle',
-    banner_width: 0,
-    banner_height: 0
-  },
-  {
-    __backendId: 'ban_2',
-    type: 'banner',
-    banner_position: 'middle',
-    banner_image_url: SEED_IMAGES.middleBanner,
-    banner_enabled: true,
-    banner_size: 'rectangle',
-    banner_width: 0,
-    banner_height: 0
-  }
-];
+const SEED_BANNERS: Banner[] = [];
 
-const SEED_REELS: Reel[] = [
-  {
-    __backendId: 'reel_1',
-    type: 'reel',
-    reel_url: 'https://assets.mixkit.co/videos/preview/mixkit-girl-in-neon-sign-holding-camera-34241-large.mp4',
-    reel_title: 'Unboxing Modern Tech Gear',
-    reel_description: 'Pure tech elegance showcased with beautiful neon style lights. Check it out!'
-  },
-  {
-    __backendId: 'reel_2',
-    type: 'reel',
-    reel_url: 'https://assets.mixkit.co/videos/preview/mixkit-serving-coffee-with-latte-art-41607-large.mp4',
-    reel_title: 'Crafting the Ultimate Morning Coffee',
-    reel_description: 'Elegance in every second. A perfect companion for your desktop.'
-  }
-];
+const SEED_REELS: Reel[] = [];
 
 const DEFAULT_SETTINGS: StoreSettings = {
   __backendId: 'sett_1',
@@ -196,11 +43,11 @@ const DEFAULT_SETTINGS: StoreSettings = {
   settings_logo_url: '',
   settings_admin_logo_url: '',
   settings_store_name_image_url: '',
-  social_facebook: 'https://facebook.com',
-  social_instagram: 'https://instagram.com',
+  social_facebook: '',
+  social_instagram: '',
   social_tiktok: '',
-  social_twitter: 'https://twitter.com',
-  social_whatsapp: '+966500000000'
+  social_twitter: '',
+  social_whatsapp: ''
 };
 
 const DEFAULT_PASSWORD = 'Poiuy8995';
@@ -233,28 +80,20 @@ function notifySubscribers() {
 }
 
 // In-Memory synchronous cache (initialized with default/seed values for an instant loading screen)
-let cachedProducts: Product[] = [...SEED_PRODUCTS];
+let cachedProducts: Product[] = [];
 let cachedOrders: Order[] = [];
-let cachedCoupons: Coupon[] = [...SEED_COUPONS];
-let cachedShippingZones: ShippingZone[] = [...SEED_SHIPPING_ZONES];
-let cachedBanners: Banner[] = [...SEED_BANNERS];
-let cachedReels: Reel[] = [...SEED_REELS];
+let cachedCoupons: Coupon[] = [];
+let cachedShippingZones: ShippingZone[] = [];
+let cachedBanners: Banner[] = [];
+let cachedReels: Reel[] = [];
 let cachedSettings: StoreSettings = { ...DEFAULT_SETTINGS };
 let cachedPassword = DEFAULT_PASSWORD;
-let cachedDisplayOrder: string[] = SEED_PRODUCTS.map(p => p.__backendId);
+let cachedDisplayOrder: string[] = [];
 
 // Setup onSnapshot real-time sync listeners
-let productsSeeded = false;
 onSnapshot(collection(firestoreDb, 'products'), (snapshot) => {
-  if (snapshot.empty && !productsSeeded) {
-    productsSeeded = true;
-    SEED_PRODUCTS.forEach(p => {
-      setDoc(doc(firestoreDb, 'products', p.__backendId), p);
-    });
-  } else {
-    cachedProducts = snapshot.docs.map(doc => doc.data() as Product);
-    notifySubscribers();
-  }
+  cachedProducts = snapshot.docs.map(doc => doc.data() as Product);
+  notifySubscribers();
 }, (err) => console.error('Products listener error:', err));
 
 onSnapshot(collection(firestoreDb, 'orders'), (snapshot) => {
@@ -264,56 +103,24 @@ onSnapshot(collection(firestoreDb, 'orders'), (snapshot) => {
   notifySubscribers();
 }, (err) => console.error('Orders listener error:', err));
 
-let couponsSeeded = false;
 onSnapshot(collection(firestoreDb, 'coupons'), (snapshot) => {
-  if (snapshot.empty && !couponsSeeded) {
-    couponsSeeded = true;
-    SEED_COUPONS.forEach(c => {
-      setDoc(doc(firestoreDb, 'coupons', c.__backendId), c);
-    });
-  } else {
-    cachedCoupons = snapshot.docs.map(doc => doc.data() as Coupon);
-    notifySubscribers();
-  }
+  cachedCoupons = snapshot.docs.map(doc => doc.data() as Coupon);
+  notifySubscribers();
 }, (err) => console.error('Coupons listener error:', err));
 
-let shippingZonesSeeded = false;
 onSnapshot(collection(firestoreDb, 'shipping_zones'), (snapshot) => {
-  if (snapshot.empty && !shippingZonesSeeded) {
-    shippingZonesSeeded = true;
-    SEED_SHIPPING_ZONES.forEach(z => {
-      setDoc(doc(firestoreDb, 'shipping_zones', z.__backendId), z);
-    });
-  } else {
-    cachedShippingZones = snapshot.docs.map(doc => doc.data() as ShippingZone);
-    notifySubscribers();
-  }
+  cachedShippingZones = snapshot.docs.map(doc => doc.data() as ShippingZone);
+  notifySubscribers();
 }, (err) => console.error('Shipping zones listener error:', err));
 
-let bannersSeeded = false;
 onSnapshot(collection(firestoreDb, 'banners'), (snapshot) => {
-  if (snapshot.empty && !bannersSeeded) {
-    bannersSeeded = true;
-    SEED_BANNERS.forEach(b => {
-      setDoc(doc(firestoreDb, 'banners', b.__backendId), b);
-    });
-  } else {
-    cachedBanners = snapshot.docs.map(doc => doc.data() as Banner);
-    notifySubscribers();
-  }
+  cachedBanners = snapshot.docs.map(doc => doc.data() as Banner);
+  notifySubscribers();
 }, (err) => console.error('Banners listener error:', err));
 
-let reelsSeeded = false;
 onSnapshot(collection(firestoreDb, 'reels'), (snapshot) => {
-  if (snapshot.empty && !reelsSeeded) {
-    reelsSeeded = true;
-    SEED_REELS.forEach(r => {
-      setDoc(doc(firestoreDb, 'reels', r.__backendId), r);
-    });
-  } else {
-    cachedReels = snapshot.docs.map(doc => doc.data() as Reel);
-    notifySubscribers();
-  }
+  cachedReels = snapshot.docs.map(doc => doc.data() as Reel);
+  notifySubscribers();
 }, (err) => console.error('Reels listener error:', err));
 
 let settingsSeeded = false;
@@ -342,8 +149,7 @@ let displayOrderSeeded = false;
 onSnapshot(doc(firestoreDb, 'product_display_order', 'order_doc'), (docSnap) => {
   if (!docSnap.exists() && !displayOrderSeeded) {
     displayOrderSeeded = true;
-    const initialOrder = SEED_PRODUCTS.map(p => p.__backendId);
-    setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: initialOrder });
+    setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: [] });
   } else if (docSnap.exists()) {
     cachedDisplayOrder = docSnap.data().order as string[];
     notifySubscribers();
