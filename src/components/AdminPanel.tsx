@@ -5,7 +5,7 @@ import {
   ArrowLeft, Plus, Edit, Trash2, GripVertical, CheckCircle, X,
   User, Phone, MapPin, Settings, AlertCircle, Lock, Film
 } from 'lucide-react';
-import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, Reel } from '../types';
+import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, Reel, Category } from '../types';
 import { db } from '../db';
 import { translations, formatPrice } from '../i18n';
 
@@ -16,6 +16,7 @@ interface AdminPanelProps {
   coupons: Coupon[];
   shippingZones: ShippingZone[];
   banners: Banner[];
+  categories: Category[];
   storeSettings: StoreSettings;
   onRefreshData: () => void;
   lang: 'en' | 'ar';
@@ -29,17 +30,19 @@ export default function AdminPanel({
   coupons,
   shippingZones,
   banners,
+  categories,
   storeSettings,
   onRefreshData,
   lang,
   onSetLang
 }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'coupons' | 'shipping' | 'banners' | 'reels' | 'settings'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'orders' | 'coupons' | 'shipping' | 'banners' | 'reels' | 'settings'>('products');
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
   const [editingCoupon, setEditingCoupon] = useState<Partial<Coupon> | null>(null);
   const [editingShippingZone, setEditingShippingZone] = useState<Partial<ShippingZone> | null>(null);
   const [editingBanner, setEditingBanner] = useState<Partial<Banner> | null>(null);
   const [editingReel, setEditingReel] = useState<Partial<Reel> | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Partial<Category> | null>(null);
   const [orderDetail, setOrderDetail] = useState<Order | null>(null);
 
   const t = translations[lang];
@@ -52,7 +55,7 @@ export default function AdminPanel({
   const [passwordChange, setPasswordChange] = useState({ current: '', new: '', confirm: '' });
 
   // Delete Confirmation State
-  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'product' | 'order' | 'coupon' | 'shipping_zone' | 'banner' | 'reel' | 'purge' } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'product' | 'order' | 'coupon' | 'shipping_zone' | 'banner' | 'reel' | 'category' | 'purge' } | null>(null);
 
   // Toast State
   const [toast, setToast] = useState<string | null>(null);
@@ -114,6 +117,8 @@ export default function AdminPanel({
       isOk = db.deleteBanner(id);
     } else if (type === 'reel') {
       isOk = db.deleteReel(id);
+    } else if (type === 'category') {
+      isOk = db.deleteCategory(id);
     }
 
     if (isOk) {
@@ -251,15 +256,6 @@ export default function AdminPanel({
     setPasswordChange({ current: '', new: '', confirm: '' });
   };
 
-  // Category unique values helper
-  const getUniqueCategories = () => {
-    const cats = new Set<string>();
-    products.forEach(p => p.category && cats.add(p.category));
-    return Array.from(cats);
-  };
-
-  const categories = getUniqueCategories();
-
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden font-sans">
       {/* Sidebar Navigation */}
@@ -277,6 +273,7 @@ export default function AdminPanel({
           <nav className="p-3 space-y-1.5 flex-1">
             {[
               { id: 'products', label: 'Products', icon: Package, count: products.length },
+              { id: 'categories', label: 'Categories', icon: Sliders, count: categories.length },
               { id: 'orders', label: 'Orders', icon: ShoppingCart, count: orders.filter(o => o.order_status === 'pending').length, countColor: 'bg-red-500 text-white' },
               { id: 'coupons', label: 'Coupons', icon: Ticket, count: coupons.length },
               { id: 'shipping', label: 'Shipping', icon: Truck, count: shippingZones.length },
@@ -294,6 +291,7 @@ export default function AdminPanel({
                     setEditingShippingZone(null);
                     setEditingBanner(null);
                     setOrderDetail(null);
+                    setEditingCategory(null);
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition text-left relative font-medium text-sm ${
                     activeTab === tab.id
@@ -325,6 +323,7 @@ export default function AdminPanel({
               setEditingShippingZone(null);
               setEditingBanner(null);
               setOrderDetail(null);
+              setEditingCategory(null);
               if (!settingsUnlocked) {
                 setShowSettingsLogin(true);
               }
@@ -1067,6 +1066,93 @@ export default function AdminPanel({
             </div>
           )}
 
+          {/* TAB CATEGORIES */}
+          {activeTab === 'categories' && (
+            <div className="max-w-4xl mx-auto">
+              {editingCategory ? (
+                /* CATEGORY FORM */
+                <CategoryForm
+                  category={editingCategory}
+                  onCancel={() => setEditingCategory(null)}
+                  onSave={() => {
+                    setEditingCategory(null);
+                    onRefreshData();
+                    triggerToast(lang === 'ar' ? 'تم حفظ الفئة بنجاح!' : 'Category saved successfully!');
+                  }}
+                  lang={lang}
+                />
+              ) : (
+                /* CATEGORIES LISTING */
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold">{lang === 'ar' ? 'فئات المنتجات المعرفة' : 'Dynamic Product Categories'}</h3>
+                    <button
+                      onClick={() => setEditingCategory({})}
+                      className="bg-black hover:opacity-90 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {lang === 'ar' ? 'إضافة فئة' : 'Add Category'}
+                    </button>
+                  </div>
+
+                  {categories.length === 0 ? (
+                    <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-xs">
+                      <Sliders className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium text-sm">
+                        {lang === 'ar' ? 'لم يتم تعريف أي فئات بعد.' : 'No categories created yet. Click "Add Category" to begin.'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                      {categories.map((cat) => (
+                        <div
+                          key={cat.__backendId}
+                          className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                              {cat.image_url ? (
+                                <img
+                                  src={cat.image_url}
+                                  alt={cat.name}
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-xs uppercase">
+                                  {cat.name.slice(0, 2)}
+                                </div>
+                              )}
+                            </div>
+                            <div className="truncate">
+                              <h4 className="font-extrabold text-sm text-gray-900 truncate">{cat.name}</h4>
+                              <p className="text-[10px] text-gray-400 font-mono mt-0.5 truncate">{cat.__backendId}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2 mt-5 pt-4 border-t border-gray-50">
+                            <button
+                              onClick={() => setEditingCategory(cat)}
+                              className="p-2 bg-white border border-gray-100 hover:bg-black hover:text-white rounded-xl transition shadow-xs cursor-pointer"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm({ id: cat.__backendId, type: 'category' })}
+                              className="p-2 bg-rose-50 hover:bg-rose-500 hover:text-white text-rose-500 rounded-xl transition border border-rose-100 shadow-xs cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TAB SETTINGS (SECURED BY UNLOCK CREDENTIALS) */}
           {activeTab === 'settings' && settingsUnlocked && (
             <div className="max-w-2xl mx-auto space-y-6">
@@ -1459,7 +1545,7 @@ interface ProductFormProps {
   product: Partial<Product>;
   onCancel: () => void;
   onSave: () => void;
-  categories: string[];
+  categories: Category[];
 }
 
 function ProductForm({ product, onCancel, onSave, categories }: ProductFormProps) {
@@ -1619,18 +1705,23 @@ function ProductForm({ product, onCancel, onSave, categories }: ProductFormProps
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-500 block mb-1">Category / Collection</label>
-            <input
+            <label className="text-xs font-bold text-gray-500 block mb-1">Category / Collection *</label>
+            <select
               id="pf_category"
-              type="text"
               defaultValue={product.category || ''}
-              list="admin-categories"
-              className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 focus:outline-none focus:border-black rounded-xl"
-              placeholder="e.g. Footwear, Watches"
-            />
-            <datalist id="admin-categories">
-              {categories.map(c => <option key={c} value={c} />)}
-            </datalist>
+              required
+              className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 focus:outline-none focus:border-black rounded-xl cursor-pointer"
+            >
+              <option value="" disabled>Select a category...</option>
+              {categories.map(c => (
+                <option key={c.__backendId} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+              {categories.length === 0 && (
+                <option value="" disabled>No categories created. Please create one in Categories tab first.</option>
+              )}
+            </select>
           </div>
         </div>
 
@@ -2272,6 +2363,106 @@ function ReelForm({ reel, onCancel, onSave, lang }: ReelFormProps) {
             className="flex-1 bg-black text-white hover:opacity-90 py-3 rounded-xl font-bold text-sm transition shadow-md"
           >
             {t.save}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────
+interface CategoryFormProps {
+  category: Partial<Category>;
+  onCancel: () => void;
+  onSave: () => void;
+  lang: 'en' | 'ar';
+}
+
+function CategoryForm({ category, onCancel, onSave, lang }: CategoryFormProps) {
+  const isEdit = !!category.__backendId;
+  const [imgUrl, setImgUrl] = useState(category.image_url || '');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = (document.getElementById('cf_name') as HTMLInputElement).value.trim();
+    const image_url = (document.getElementById('cf_image_url') as HTMLInputElement).value.trim();
+
+    if (!name || !image_url) return;
+
+    db.saveCategory({
+      ...category,
+      name,
+      image_url
+    });
+    onSave();
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm max-w-xl">
+      <h3 className="font-bold text-lg mb-4">
+        {isEdit ? (lang === 'ar' ? 'تعديل الفئة' : 'Edit Category') : (lang === 'ar' ? 'إضافة فئة جديدة' : 'Add New Category')}
+      </h3>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="text-xs font-bold text-gray-500 block mb-1">
+            {lang === 'ar' ? 'اسم الفئة *' : 'Category Name *'}
+          </label>
+          <input
+            id="cf_name"
+            type="text"
+            required
+            defaultValue={category.name || ''}
+            placeholder="e.g. Hoodies"
+            className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 focus:outline-none focus:border-black rounded-xl"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-gray-500 block mb-1">
+            {lang === 'ar' ? 'رابط صورة الفئة *' : 'Category Image URL *'}
+          </label>
+          <input
+            id="cf_image_url"
+            type="url"
+            required
+            value={imgUrl}
+            onChange={(e) => setImgUrl(e.target.value)}
+            placeholder="https://images.unsplash.com/photo-..."
+            className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 focus:outline-none focus:border-black rounded-xl font-mono"
+          />
+        </div>
+
+        {imgUrl.trim() && (
+          <div>
+            <label className="text-xs font-bold text-gray-500 block mb-1.5">
+              {lang === 'ar' ? 'معاينة الصورة' : 'Image Preview'}
+            </label>
+            <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
+              <img
+                src={imgUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-4 border-t border-gray-50">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 bg-gray-100 hover:bg-gray-200 py-3 rounded-xl font-bold text-sm transition"
+          >
+            {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+          </button>
+          <button
+            type="submit"
+            className="flex-1 bg-black text-white hover:opacity-90 py-3 rounded-xl font-bold text-sm transition shadow-md"
+          >
+            {lang === 'ar' ? 'حفظ' : 'Save'}
           </button>
         </div>
       </form>

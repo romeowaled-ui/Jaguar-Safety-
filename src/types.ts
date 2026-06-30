@@ -122,3 +122,11 @@ export interface Reel {
   reel_description?: string;
 }
 
+export interface Category {
+  __backendId: string;
+  type: 'category';
+  name: string;
+  image_url: string;
+}
+
+

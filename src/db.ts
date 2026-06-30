@@ -8,7 +8,44 @@ import {
   deleteDoc,
   onSnapshot
 } from 'firebase/firestore';
-import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, Reel } from './types';
+import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, Reel, Category } from './types';
+
+export enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  };
+}
+
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {},
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
 
 // Helper to generate IDs
 const generateId = () => Math.random().toString(36).substring(2, 11);
@@ -86,75 +123,87 @@ let cachedCoupons: Coupon[] = [];
 let cachedShippingZones: ShippingZone[] = [];
 let cachedBanners: Banner[] = [];
 let cachedReels: Reel[] = [];
+let cachedCategories: Category[] = [];
 let cachedSettings: StoreSettings = { ...DEFAULT_SETTINGS };
 let cachedPassword = DEFAULT_PASSWORD;
 let cachedDisplayOrder: string[] = [];
 
 // Setup onSnapshot real-time sync listeners
+onSnapshot(collection(firestoreDb, 'categories'), (snapshot) => {
+  cachedCategories = snapshot.docs.map(doc => doc.data() as Category);
+  notifySubscribers();
+}, (err) => handleFirestoreError(err, OperationType.GET, 'categories'));
+
 onSnapshot(collection(firestoreDb, 'products'), (snapshot) => {
   cachedProducts = snapshot.docs.map(doc => doc.data() as Product);
   notifySubscribers();
-}, (err) => console.error('Products listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'products'));
 
 onSnapshot(collection(firestoreDb, 'orders'), (snapshot) => {
   cachedOrders = snapshot.docs.map(doc => doc.data() as Order);
   // Sort orders by date descending
   cachedOrders.sort((a, b) => new Date(b.order_date).getTime() - new Date(a.order_date).getTime());
   notifySubscribers();
-}, (err) => console.error('Orders listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'orders'));
 
 onSnapshot(collection(firestoreDb, 'coupons'), (snapshot) => {
   cachedCoupons = snapshot.docs.map(doc => doc.data() as Coupon);
   notifySubscribers();
-}, (err) => console.error('Coupons listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'coupons'));
 
 onSnapshot(collection(firestoreDb, 'shipping_zones'), (snapshot) => {
   cachedShippingZones = snapshot.docs.map(doc => doc.data() as ShippingZone);
   notifySubscribers();
-}, (err) => console.error('Shipping zones listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'shipping_zones'));
 
 onSnapshot(collection(firestoreDb, 'banners'), (snapshot) => {
   cachedBanners = snapshot.docs.map(doc => doc.data() as Banner);
   notifySubscribers();
-}, (err) => console.error('Banners listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'banners'));
 
 onSnapshot(collection(firestoreDb, 'reels'), (snapshot) => {
   cachedReels = snapshot.docs.map(doc => doc.data() as Reel);
   notifySubscribers();
-}, (err) => console.error('Reels listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'reels'));
 
 let settingsSeeded = false;
 onSnapshot(doc(firestoreDb, 'settings', 'sett_1'), (docSnap) => {
   if (!docSnap.exists() && !settingsSeeded) {
     settingsSeeded = true;
-    setDoc(doc(firestoreDb, 'settings', 'sett_1'), DEFAULT_SETTINGS);
+    setDoc(doc(firestoreDb, 'settings', 'sett_1'), DEFAULT_SETTINGS).catch(err => {
+      handleFirestoreError(err, OperationType.WRITE, 'settings/sett_1');
+    });
   } else if (docSnap.exists()) {
     cachedSettings = docSnap.data() as StoreSettings;
     notifySubscribers();
   }
-}, (err) => console.error('Settings listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'settings/sett_1'));
 
 let passwordSeeded = false;
 onSnapshot(doc(firestoreDb, 'admin_password', 'password_doc'), (docSnap) => {
   if (!docSnap.exists() && !passwordSeeded) {
     passwordSeeded = true;
-    setDoc(doc(firestoreDb, 'admin_password', 'password_doc'), { password: DEFAULT_PASSWORD });
+    setDoc(doc(firestoreDb, 'admin_password', 'password_doc'), { password: DEFAULT_PASSWORD }).catch(err => {
+      handleFirestoreError(err, OperationType.WRITE, 'admin_password/password_doc');
+    });
   } else if (docSnap.exists()) {
     cachedPassword = docSnap.data().password as string;
     notifySubscribers();
   }
-}, (err) => console.error('Password listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'admin_password/password_doc'));
 
 let displayOrderSeeded = false;
 onSnapshot(doc(firestoreDb, 'product_display_order', 'order_doc'), (docSnap) => {
   if (!docSnap.exists() && !displayOrderSeeded) {
     displayOrderSeeded = true;
-    setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: [] });
+    setDoc(doc(firestoreDb, 'product_display_order', 'order_doc'), { order: [] }).catch(err => {
+      handleFirestoreError(err, OperationType.WRITE, 'product_display_order/order_doc');
+    });
   } else if (docSnap.exists()) {
     cachedDisplayOrder = docSnap.data().order as string[];
     notifySubscribers();
   }
-}, (err) => console.error('Display order listener error:', err));
+}, (err) => handleFirestoreError(err, OperationType.GET, 'product_display_order/order_doc'));
 
 export function initDB() {
   // Delete legacy seed data if present to ensure a completely clean start
@@ -169,7 +218,7 @@ export function initDB() {
   Object.entries(legacyIds).forEach(([collectionName, ids]) => {
     ids.forEach(id => {
       deleteDoc(doc(firestoreDb, collectionName, id)).catch(err => {
-        console.error(`Error removing legacy seed ${id} from ${collectionName}:`, err);
+        handleFirestoreError(err, OperationType.DELETE, `${collectionName}/${id}`);
       });
     });
   });
@@ -499,6 +548,46 @@ export const db = {
 
     return cachedReels.length < lengthBefore;
   },
+  
+  // CATEGORIES
+  getCategories(): Category[] {
+    return [...cachedCategories];
+  },
+  saveCategory(c: Partial<Category> & { name: string; image_url: string }): Category {
+    let savedCategory: Category;
+
+    if (c.__backendId) {
+      const index = cachedCategories.findIndex(item => item.__backendId === c.__backendId);
+      savedCategory = { ...(index !== -1 ? cachedCategories[index] : {}), ...c } as Category;
+      if (index !== -1) {
+        cachedCategories = cachedCategories.map((item, idx) => idx === index ? savedCategory : item);
+      } else {
+        cachedCategories = [...cachedCategories, savedCategory];
+      }
+    } else {
+      savedCategory = {
+        ...c,
+        __backendId: 'cat_' + generateId(),
+        type: 'category'
+      } as Category;
+      cachedCategories = [...cachedCategories, savedCategory];
+    }
+
+    setDoc(doc(firestoreDb, 'categories', savedCategory.__backendId), savedCategory);
+    notifySubscribers();
+
+    return savedCategory;
+  },
+  deleteCategory(backendId: string): boolean {
+    const lengthBefore = cachedCategories.length;
+    cachedCategories = cachedCategories.filter(c => c.__backendId !== backendId);
+
+    deleteDoc(doc(firestoreDb, 'categories', backendId));
+    notifySubscribers();
+
+    return cachedCategories.length < lengthBefore;
+  },
+
   purgeStoreContent(): void {
     // Delete all products
     cachedProducts.forEach(p => {
@@ -517,6 +606,12 @@ export const db = {
       deleteDoc(doc(firestoreDb, 'reels', r.__backendId));
     });
     cachedReels = [];
+
+    // Delete all categories
+    cachedCategories.forEach(c => {
+      deleteDoc(doc(firestoreDb, 'categories', c.__backendId));
+    });
+    cachedCategories = [];
 
     // Clear display order
     cachedDisplayOrder = [];

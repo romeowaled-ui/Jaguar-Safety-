@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ShoppingBag, Menu, X, Package, Settings, Globe } from 'lucide-react';
-import { Product, Banner, StoreSettings } from '../types';
+import { Product, Banner, StoreSettings, Category } from '../types';
 import { translations, formatPrice } from '../i18n';
 import { db } from '../db';
 
@@ -8,6 +8,7 @@ interface StorefrontProps {
   products: Product[];
   banners: Banner[];
   storeSettings: StoreSettings;
+  categories: Category[];
   onSelectProduct: (p: Product) => void;
   onOpenCart: () => void;
   onOpenAdmin: () => void;
@@ -20,6 +21,7 @@ export default function Storefront({
   products,
   banners,
   storeSettings,
+  categories,
   onSelectProduct,
   onOpenCart,
   onOpenAdmin,
@@ -35,16 +37,9 @@ export default function Storefront({
   const t = translations[lang];
   const reels = db.getReels();
 
-  // Extract unique active categories
-  const getCategoriesList = () => {
-    const cats = new Set<string>();
-    products.forEach(p => {
-      if (p.category && p.status === 'active') cats.add(p.category);
-    });
-    return ['All', ...Array.from(cats)];
-  };
+  // Extract list of category names for filtering
+  const categoriesList = ['All', ...categories.map(c => c.name)];
 
-  const categories = getCategoriesList();
 
   // Helper to determine product stock status
   const isProductInStock = (p: Product) => {
@@ -154,9 +149,9 @@ export default function Storefront({
         </div>
 
         {/* Category desktop strip */}
-        {categories.length > 1 && (
+        {categoriesList.length > 1 && (
           <div className="hidden md:flex items-center gap-1">
-            {categories.map(cat => (
+            {categoriesList.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -242,7 +237,7 @@ export default function Storefront({
               >
                 Storefront
               </button>
-              {categories.map(cat => (
+              {categoriesList.map(cat => (
                 <button
                   key={cat}
                   onClick={() => {
@@ -274,8 +269,70 @@ export default function Storefront({
         </div>
       )}
 
+      {/* Dynamic Categories Section */}
+      {selectedCategory === 'All' && categories.length > 0 && (
+        <section className="px-4 md:px-8 py-6">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <h2 className="text-xs font-black uppercase tracking-widest text-gray-400">
+              {lang === 'ar' ? 'تصفح الفئات الكاشفة' : 'Browse Our Collections'}
+            </h2>
+            <h3 className="text-xl md:text-2xl font-black text-gray-950 mt-1">
+              {lang === 'ar' ? 'فئات المنتجات المميزة' : 'Shop by Category'}
+            </h3>
+            <div className="w-10 h-1 bg-black rounded-full mt-2.5" />
+          </div>
+          
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+            {categories.map((cat) => (
+              <div
+                key={cat.__backendId}
+                onClick={() => setSelectedCategory(cat.name)}
+                className="group cursor-pointer flex flex-col items-center"
+              >
+                {/* Rounded category image card */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden border border-gray-100 shadow-xs group-hover:shadow-md group-hover:scale-105 transition-all duration-300 relative bg-gray-50 flex items-center justify-center">
+                  {cat.image_url ? (
+                    <img
+                      src={cat.image_url}
+                      alt={cat.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-extrabold text-lg uppercase">
+                      {cat.name.slice(0, 2)}
+                    </div>
+                  )}
+                </div>
+                {/* Category name */}
+                <span className="text-center mt-3 text-xs md:text-sm font-extrabold text-gray-700 group-hover:text-black tracking-wide transition-colors truncate max-w-full px-1">
+                  {cat.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Store Products Feed */}
       <section className="px-4 md:px-8 py-8 flex-1">
+        {selectedCategory !== 'All' && (
+          <div className="flex items-center justify-between border-b border-gray-100 pb-5 mb-8 max-w-7xl mx-auto">
+            <div>
+              <span className="text-[10px] uppercase font-extrabold text-gray-400 tracking-widest block">
+                {lang === 'ar' ? 'الفئة المعروضة' : 'Viewing Category'}
+              </span>
+              <h2 className="text-xl md:text-2xl font-black text-gray-950 mt-1">{selectedCategory}</h2>
+            </div>
+            <button
+              onClick={() => setSelectedCategory('All')}
+              className="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-xs font-bold rounded-xl transition text-gray-700 flex items-center gap-1.5 border border-gray-100 shadow-2xs cursor-pointer"
+            >
+              &larr; {lang === 'ar' ? 'عرض الكل' : 'View All'}
+            </button>
+          </div>
+        )}
+
         {filteredProducts.length === 0 ? (
           <div className="text-center py-20 max-w-md mx-auto">
             <Package className="w-12 h-12 mx-auto text-gray-300 mb-3" />

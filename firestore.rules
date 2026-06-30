@@ -6,6 +6,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Categories Collection: Public read and write access for dynamic category management
+    match /categories/{categoryId} {
+      allow read, write: if true;
+    }
+
     // Orders Collection: Public write for placing orders, and read/write for managing orders
     match /orders/{orderId} {
       allow read, write: if true;

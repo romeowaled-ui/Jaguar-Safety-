@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Lock, X, CheckCircle, AlertCircle } from 'lucide-react';
-import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, CartItem } from './types';
+import { Product, Order, Coupon, ShippingZone, StoreSettings, Banner, CartItem, Category } from './types';
 import { db } from './db';
 import { translations } from './i18n';
 import Storefront from './components/Storefront';
@@ -36,6 +36,7 @@ export default function App() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(db.getSettings());
 
   // Administrative login parameters
@@ -60,6 +61,7 @@ export default function App() {
     setCoupons(db.getCoupons());
     setShippingZones(db.getShippingZones());
     setBanners(db.getBanners());
+    setCategories(db.getCategories());
     setStoreSettings(db.getSettings());
   };
 
@@ -167,6 +169,7 @@ export default function App() {
           coupons={coupons}
           shippingZones={shippingZones}
           banners={banners}
+          categories={categories}
           storeSettings={storeSettings}
           onRefreshData={refreshAllData}
           lang={lang}
@@ -191,6 +194,7 @@ export default function App() {
           products={products}
           banners={banners}
           storeSettings={storeSettings}
+          categories={categories}
           onSelectProduct={(p) => {
             setActiveProduct(p);
             setCurrentView('product');
