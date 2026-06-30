@@ -49,7 +49,6 @@ export default function CartDrawer({
   const [countryCode, setCountryCode] = useState('+966');
   const [phone, setPhone] = useState('');
   const [altPhone, setAltPhone] = useState('');
-  const [stateGovernorate, setStateGovernorate] = useState('');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [shippingZoneName, setShippingZoneName] = useState(shippingZones[0]?.shipping_zone_name || '');
@@ -140,7 +139,7 @@ export default function CartDrawer({
       order_email: email,
       order_phone: countryCode + phone,
       order_alt_phone: altPhone,
-      order_state: stateGovernorate,
+      order_state: '',
       order_address: address,
       order_items: JSON.stringify(items),
       order_total: grandTotal,
@@ -195,7 +194,6 @@ export default function CartDrawer({
     setEmail('');
     setPhone('');
     setAltPhone('');
-    setStateGovernorate('');
     setAddress('');
     setNotes('');
     setAppliedCoupon(null);
@@ -435,18 +433,6 @@ export default function CartDrawer({
                       value={altPhone}
                       onChange={(e) => setAltPhone(e.target.value.replace(/[^0-9]/g, ''))}
                       className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-black text-gray-950 font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-gray-500 block mb-1">{t.governorateState}</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder={t.governorateStatePlaceholder}
-                      value={stateGovernorate}
-                      onChange={(e) => setStateGovernorate(e.target.value)}
-                      className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-black text-gray-950 font-medium"
                     />
                   </div>
 
